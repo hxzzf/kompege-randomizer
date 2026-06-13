@@ -3,50 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рандомайзер задач KompEGE</title>
+    <title>KompEGE Randomizer</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; background: #f4f7f6; color: #333; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { color: #2c3e50; margin-bottom: 25px; }
-        select, button { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        select { background-color: #fff; cursor: pointer; }
-        button { background: #27ae60; color: white; cursor: pointer; border: none; font-weight: bold; transition: background 0.2s; }
-        button:hover { background: #219653; }
-        #result { margin-top: 30px; padding: 20px; border-radius: 8px; background: #ecf0f1; display: none; }
-        .id-box { font-size: 24px; color: #2c3e50; font-weight: bold; margin: 10px 0; }
-        a { display: inline-block; margin-top: 10px; color: #2980b9; text-decoration: none; font-weight: 500; }
-        a:hover { text-decoration: underline; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --border-color: #334155;
+            
+            /* Цвета для уровней сложности */
+            --badge-easy: #3b82f6;
+            --badge-medium: #f59e0b;
+            --badge-hard: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            perspective: 1000px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #34d399, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            color: var(--text-main);
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            background-color: var(--accent);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 16px;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #fff;
+        }
+
+        .badge.type { background-color: #475569; }
+        .badge.level-базовый { background-color: var(--badge-easy); }
+        .badge.level-средний { background-color: var(--badge-medium); }
+        .badge.level-сложный-гроб { background-color: var(--badge-hard); }
+
+        .id-box {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .btn-link:hover {
+            color: #93c5fd;
+        }
+
+        .error-message {
+            color: #f87171;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Рандомайзер KompEGE</h2>
-        
-        <select id="taskType">
-            <option value="">Любой тип задания (1-27)</option>
-        </select>
+    <div class="container">
+        <div class="card">
+            <h2>KompEGE Randomizer</h2>
+            <div class="subtitle" id="statsCounter">Загрузка базы задач...</div>
+            
+            <div class="form-group">
+                <label for="taskType">Номер задания ЕГЭ</label>
+                <select id="taskType">
+                    <option value="">Любое задание (1-27)</option>
+                </select>
+            </div>
 
-        <select id="taskLevel">
-            <option value="">Любая сложность</option>
-            <option value="Базовый">Базовый</option>
-            <option value="Средний">Средний</option>
-            <option value="Сложный+гроб">Сложный + Гроб</option>
-        </select>
+            <div class="form-group">
+                <label for="taskLevel">Сложность</label>
+                <select id="taskLevel">
+                    <option value="">Любая сложность</option>
+                    <option value="Базовый">Базовый</option>
+                    <option value="Средний">Средний</option>
+                    <option value="Сложный+гроб">Сложный + Гроб</option>
+                </select>
+            </div>
 
-        <button onclick="getRandomTask()">Выдать случайное задание</button>
+            <button onclick="getRandomTask()">Выдать случайное задание</button>
 
-        <div id="result">
-            <div>Тип задания: <span id="resType"></span> | Сложность: <span id="resLevel"></span></div>
-            <div class="id-box">№ <span id="resId"></span></div>
-            <a id="resLink" href="#" target="_blank">👉 Открыть на KompEGE</a>
+            <div id="result"></div>
         </div>
     </div>
 
     <script>
         let allTasks = [];
 
-        // Автоматически заполняем выпадающий список номерами от 1 до 27
+        // Генерируем список типов заданий
         const typeSelect = document.getElementById('taskType');
         for (let i = 1; i <= 27; i++) {
             let opt = document.createElement('option');
@@ -55,15 +240,15 @@
             typeSelect.appendChild(opt);
         }
 
-        // Загружаем наш сгенерированный tasks.json при старте страницы
+        // Подгружаем наш JSON
         fetch('tasks.json')
             .then(response => response.json())
             .then(data => {
                 allTasks = data;
-                console.log(`Загружено задач в базу сайта: ${allTasks.length}`);
+                document.getElementById('statsCounter').innerHTML = `В базе доступно <strong>${allTasks.length}</strong> задач`;
             })
             .catch(err => {
-                alert("Ошибка загрузки базы задач. Проверьте, лежит ли tasks.json рядом с index.html");
+                document.getElementById('statsCounter').innerHTML = `<span class="error-message">Ошибка загрузки базы задач</span>`;
                 console.error(err);
             });
 
@@ -72,32 +257,40 @@
             const selectedLevel = document.getElementById('taskLevel').value;
             const resultBlock = document.getElementById('result');
 
-            if (allTasks.length === 0) {
-                alert("База данных еще не загрузилась, подождите секунду...");
-                return;
-            }
+            if (allTasks.length === 0) return;
 
-            // Фильтруем массив задач по выбранным параметрам
             const filtered = allTasks.filter(task => {
                 const matchType = selectedType ? task.type == selectedType : true;
                 const matchLevel = selectedLevel ? task.level === selectedLevel : true;
                 return matchType && matchLevel;
             });
 
+            // Сбрасываем анимацию, чтобы она проигрывалась заново при каждом клике
+            resultBlock.style.animation = 'none';
+            resultBlock.offsetHeight; // триггер перерисовки (reflow)
+            resultBlock.style.animation = null;
+
             if (filtered.length === 0) {
                 resultBlock.style.display = "block";
-                resultBlock.innerHTML = "<span style='color: #c0392b; font-weight: bold;'>Заданий с такими критериями не найдено 😢</span>";
+                resultBlock.innerHTML = "<span class='error-message'>Заданий с такими критериями не найдено 😢</span>";
                 return;
             }
 
-            // Рандомим задачу из отфильтрованных
             const randomTask = filtered[Math.floor(Math.random() * filtered.length)];
 
-            // Восстанавливаем структуру отображения, если до этого была ошибка "не найдено"
+            // Создаем CSS-класс для бейджа сложности (заменяем + на дефис для валидности класса)
+            const levelClass = randomTask.level.toLowerCase().replace('+', '-');
+
             resultBlock.innerHTML = `
-                <div>Тип задания: <span id="resType">${randomTask.type}</span> | Сложность: <span id="resLevel">${randomTask.level}</span></div>
-                <div class="id-box">№ <span id="resId">${randomTask.id}</span></div>
-                <a id="resLink" href="https://kompege.ru/task?id=${randomTask.id}" target="_blank">👉 Открыть на KompEGE</a>
+                <div class="result-meta">
+                    <span class="badge type">№ ${randomTask.type}</span>
+                    <span class="badge level-${levelClass}">${randomTask.level}</span>
+                </div>
+                <div class="id-box">ID: ${randomTask.id}</div>
+                <a class="btn-link" href="https://kompege.ru/task?id=${randomTask.id}" target="_blank">
+                    Открыть на KompEGE 
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
             `;
             
             resultBlock.style.display = "block";
