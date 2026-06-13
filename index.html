@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рандомайзер задач KompEGE</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; background: #f4f7f6; color: #333; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: #2c3e50; margin-bottom: 25px; }
+        select, button { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        select { background-color: #fff; cursor: pointer; }
+        button { background: #27ae60; color: white; cursor: pointer; border: none; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #219653; }
+        #result { margin-top: 30px; padding: 20px; border-radius: 8px; background: #ecf0f1; display: none; }
+        .id-box { font-size: 24px; color: #2c3e50; font-weight: bold; margin: 10px 0; }
+        a { display: inline-block; margin-top: 10px; color: #2980b9; text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Рандомайзер KompEGE</h2>
+        
+        <select id="taskType">
+            <option value="">Любой тип задания (1-27)</option>
+        </select>
+
+        <select id="taskLevel">
+            <option value="">Любая сложность</option>
+            <option value="Базовый">Базовый</option>
+            <option value="Средний">Средний</option>
+            <option value="Сложный+гроб">Сложный + Гроб</option>
+        </select>
+
+        <button onclick="getRandomTask()">Выдать случайное задание</button>
+
+        <div id="result">
+            <div>Тип задания: <span id="resType"></span> | Сложность: <span id="resLevel"></span></div>
+            <div class="id-box">№ <span id="resId"></span></div>
+            <a id="resLink" href="#" target="_blank">👉 Открыть на KompEGE</a>
+        </div>
+    </div>
+
+    <script>
+        let allTasks = [];
+
+        // Автоматически заполняем выпадающий список номерами от 1 до 27
+        const typeSelect = document.getElementById('taskType');
+        for (let i = 1; i <= 27; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = `Задание №${i}`;
+            typeSelect.appendChild(opt);
+        }
+
+        // Загружаем наш сгенерированный tasks.json при старте страницы
+        fetch('tasks.json')
+            .then(response => response.json())
+            .then(data => {
+                allTasks = data;
+                console.log(`Загружено задач в базу сайта: ${allTasks.length}`);
+            })
+            .catch(err => {
+                alert("Ошибка загрузки базы задач. Проверьте, лежит ли tasks.json рядом с index.html");
+                console.error(err);
+            });
+
+        function getRandomTask() {
+            const selectedType = document.getElementById('taskType').value;
+            const selectedLevel = document.getElementById('taskLevel').value;
+            const resultBlock = document.getElementById('result');
+
+            if (allTasks.length === 0) {
+                alert("База данных еще не загрузилась, подождите секунду...");
+                return;
+            }
+
+            // Фильтруем массив задач по выбранным параметрам
+            const filtered = allTasks.filter(task => {
+                const matchType = selectedType ? task.type == selectedType : true;
+                const matchLevel = selectedLevel ? task.level === selectedLevel : true;
+                return matchType && matchLevel;
+            });
+
+            if (filtered.length === 0) {
+                resultBlock.style.display = "block";
+                resultBlock.innerHTML = "<span style='color: #c0392b; font-weight: bold;'>Заданий с такими критериями не найдено 😢</span>";
+                return;
+            }
+
+            // Рандомим задачу из отфильтрованных
+            const randomTask = filtered[Math.floor(Math.random() * filtered.length)];
+
+            // Восстанавливаем структуру отображения, если до этого была ошибка "не найдено"
+            resultBlock.innerHTML = `
+                <div>Тип задания: <span id="resType">${randomTask.type}</span> | Сложность: <span id="resLevel">${randomTask.level}</span></div>
+                <div class="id-box">№ <span id="resId">${randomTask.id}</span></div>
+                <a id="resLink" href="https://kompege.ru/task?id=${randomTask.id}" target="_blank">👉 Открыть на KompEGE</a>
+            `;
+            
+            resultBlock.style.display = "block";
+        }
+    </script>
+</body>
+</html>
